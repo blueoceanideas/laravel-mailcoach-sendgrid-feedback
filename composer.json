@@ -27,7 +27,7 @@
     "require": {
         "php": "^7.4",
         "illuminate/http": "^7.0",
-        "spatie/laravel-mailcoach": "dev-themosis-support as 2.13.0",
+        "spatie/laravel-mailcoach": "dev-themosis-support as 2.15.4",
         "spatie/laravel-webhook-client": "^2.2"
     },
     "require-dev": {
