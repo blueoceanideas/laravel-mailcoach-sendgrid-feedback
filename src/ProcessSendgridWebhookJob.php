@@ -24,47 +24,32 @@ class ProcessSendgridWebhookJob extends ProcessWebhookJob
     {
         $payload = $this->webhookCall->payload;
 
-        $payload = array_map(function ($rawEvent) {
-            return $this->handleRawEvent($rawEvent);
-        }, $payload);
-
-        $this->webhookCall->update(['payload' => array_filter($payload)]);
+        foreach ($payload as $rawEvent) {
+            $this->handleRawEvent($rawEvent);
+        }
 
         event(new WebhookCallProcessedEvent($this->webhookCall));
     }
 
-    protected function handleRawEvent(array $rawEvent): ?array
+    protected function handleRawEvent(array $rawEvent)
     {
         if (! $send = $this->getSend($rawEvent)) {
-            return null;
-        }
-
-        if (! $this->isFirstOfThisSendgridMessage($rawEvent)) {
-            return null;
+            return;
         }
 
         $sendgridEvent = SendgridEventFactory::createForPayload($rawEvent);
 
         $sendgridEvent->handle($send);
-
-        return $rawEvent;
     }
 
     protected function getSend(array $rawEvent): ?Send
     {
         $sendUuid = Arr::get($rawEvent, 'send_uuid');
-
+        
         if (! $sendUuid) {
             return null;
         }
 
-        return Send::findByUuid($sendUuid);
-    }
-
-    private function isFirstOfThisSendgridMessage(array $rawEvent): bool
-    {
-        $firstMessageId = (int) WebhookCall::where('payload', 'LIKE', "%\"sg_event_id\":\"{$rawEvent['sg_event_id']}\"%")->min('id');
-
-        return $this->webhookCall->id === $firstMessageId;
+        return $sendUuid !== null ? Send::findByUuid($sendUuid) : null;
     }
 }

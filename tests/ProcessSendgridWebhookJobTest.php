@@ -3,7 +3,6 @@
 namespace Spatie\MailcoachSendgridFeedback\Tests;
 
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Spatie\Mailcoach\Enums\SendFeedbackType;
 use Spatie\Mailcoach\Events\WebhookCallProcessedEvent;
@@ -16,8 +15,6 @@ use Spatie\WebhookClient\Models\WebhookCall;
 
 class ProcessSendgridWebhookJobTest extends TestCase
 {
-    use RefreshDatabase;
-
     private WebhookCall $webhookCall;
 
     private $send;
@@ -149,24 +146,5 @@ class ProcessSendgridWebhookJobTest extends TestCase
         $this->assertEquals(0, CampaignLink::count());
         $this->assertEquals(0, CampaignOpen::count());
         $this->assertEquals(0, SendFeedbackItem::count());
-    }
-
-    /** @test */
-    public function it_wont_handle_the_same_event_ids_twice()
-    {
-        $call2 = WebhookCall::create([
-            'name' => 'sendgrid',
-            'payload' => $this->getStub('multipleEventsPayload'),
-        ]);
-
-        $job = new ProcessSendgridWebhookJob($this->webhookCall);
-        $job->handle();
-
-        $job = new ProcessSendgridWebhookJob($call2);
-        $job->handle();
-
-        $this->assertEquals(2, SendFeedbackItem::count());
-
-        $this->assertEquals([], $call2->fresh()->payload);
     }
 }
