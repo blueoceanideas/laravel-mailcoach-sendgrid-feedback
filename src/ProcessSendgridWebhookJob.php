@@ -5,9 +5,9 @@ namespace Spatie\MailcoachSendgridFeedback;
 use Illuminate\Support\Arr;
 use Spatie\Mailcoach\Events\WebhookCallProcessedEvent;
 use Spatie\Mailcoach\Models\Send;
+use Spatie\Mailcoach\Support\Config;
 use Spatie\WebhookClient\Models\WebhookCall;
 use Spatie\WebhookClient\ProcessWebhookJob;
-use Spatie\Mailcoach\Support\Config;
 
 class ProcessSendgridWebhookJob extends ProcessWebhookJob
 {
@@ -24,32 +24,50 @@ class ProcessSendgridWebhookJob extends ProcessWebhookJob
     {
         $payload = $this->webhookCall->payload;
 
-        foreach ($payload as $rawEvent) {
-            $this->handleRawEvent($rawEvent);
-        }
+        $payload = array_map(function ($rawEvent) {
+            return $this->handleRawEvent($rawEvent);
+        }, $payload);
+
+        $this->webhookCall->update(['payload' => array_filter($payload)]);
 
         event(new WebhookCallProcessedEvent($this->webhookCall));
     }
 
-    protected function handleRawEvent(array $rawEvent)
+    protected function handleRawEvent(array $rawEvent): ?array
     {
         if (! $send = $this->getSend($rawEvent)) {
-            return;
+            return null;
+        }
+
+        if (! $this->isFirstOfThisSendgridMessage($rawEvent)) {
+            return null;
         }
 
         $sendgridEvent = SendgridEventFactory::createForPayload($rawEvent);
 
         $sendgridEvent->handle($send);
+
+        return $rawEvent;
     }
 
     protected function getSend(array $rawEvent): ?Send
     {
         $sendUuid = Arr::get($rawEvent, 'send_uuid');
-        
+
         if (! $sendUuid) {
             return null;
         }
 
-        return $sendUuid !== null ? Send::findByUuid($sendUuid) : null;
+        return Send::findByUuid($sendUuid);
+    }
+
+    private function isFirstOfThisSendgridMessage(array $rawEvent): bool
+    {
+        $firstMessageId = (int) WebhookCall::query()
+            ->where('payload', 'LIKE', "%\"sg_event_id\":\"{$rawEvent['sg_event_id']}\"%")
+            ->orWhere('payload', 'LIKE', "%\"sg_event_id\": \"{$rawEvent['sg_event_id']}\"%")
+            ->min('id');
+
+        return $this->webhookCall->id === $firstMessageId;
     }
 }

@@ -17,23 +17,22 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "https://satis.mailcoach.app"
-        },
-        {
-            "type": "git",
-            "url": "git@github.com:blueoceanideas/laravel-mailcoach.git"
+            "url": "https://satis.spatie.be"
         }
     ],
     "require": {
         "php": "^7.4",
-        "illuminate/http": "^7.0",
-        "spatie/laravel-mailcoach": "dev-themosis-support as 2.15.4",
+        "illuminate/http": "^7.0|^8.0",
+        "orchestra/testbench": "^5.0|^6.0",
+        "spatie/laravel-mailcoach": "dev-themosis-support-laravel-8 as 3.2.0",
         "spatie/laravel-webhook-client": "^2.2"
     },
     "require-dev": {
         "ext-json": "*",
-        "fzaninotto/faker": "^1.9",
         "friendsofphp/php-cs-fixer": "^2.16",
+        "fzaninotto/faker": "^1.9",
+        "laravel/legacy-factories": "^1.0.4",
+        "orchestra/testbench": "^5.0|^6.0",
         "symfony/var-dumper": "^5.0"
     },
     "autoload": {
@@ -48,7 +47,8 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     },
     "config": {
         "sort-packages": true

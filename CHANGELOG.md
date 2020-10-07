@@ -2,9 +2,25 @@
 
 All notable changes to `laravel-mailcoach-sendgrid-feedback` will be documented in this file
 
+## 2.3.1 - 2020-09-25
+
+- Fix check on first message id of json payload
+
+## 2.3.0 - 2020-09-24
+
+- Tag a Mailcoach v3 compatible release
+
+## 2.2.7 - 2020-09-09
+
+- fix Laravel 8 support
+
+## 2.2.6 - 2020-09-09
+
+- add support for Laravel 8
+
 ## 2.2.5 - 2020-09-03
 
-- Don't handle temporary bounces as permantent bounces
+- Don't handle temporary bounces as permanent bounces
 
 ## 2.2.4 - 2020-08-13
 
