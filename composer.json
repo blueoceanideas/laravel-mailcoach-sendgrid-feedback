@@ -23,7 +23,6 @@
     "require": {
         "php": "^7.4",
         "illuminate/http": "^7.0|^8.0",
-        "orchestra/testbench": "^5.0|^6.0",
         "spatie/laravel-mailcoach": "dev-themosis-support-laravel-8 as 3.2.0",
         "spatie/laravel-webhook-client": "^2.2"
     },
